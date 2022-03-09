@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 namespace Challenge02.Domain.Interfaces
 {
     public interface IGenericRepository<T> where T : class
-
     {
         Task Add(T entity);
         Task AddRange(IEnumerable<T> entities);

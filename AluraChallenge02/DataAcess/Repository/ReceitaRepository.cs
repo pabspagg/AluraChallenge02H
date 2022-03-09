@@ -9,9 +9,7 @@ namespace Challenge02.Repository
 {
     public class ReceitaRepository : GenericRepository<Receita>, IReceitaRepository
     {
-        public ReceitaRepository(AppDbContext context) : base(context)
-        {
-        }
+        public ReceitaRepository(AppDbContext context) : base(context) { }
 
         public IEnumerable<Receita> GetReceitaByMonth(Expression<Func<Receita, bool>> expression)
         {

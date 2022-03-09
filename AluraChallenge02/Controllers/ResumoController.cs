@@ -24,7 +24,10 @@ namespace Challenge02.Controllers
         /// </summary>
         [HttpGet]
         [Route("{ano}/{mes}")]
-        public async Task<IActionResult> GetResumoByMonthYear([FromRoute] string ano, [FromRoute] string mes)
+        public async Task<IActionResult> GetResumoByMonthYear(
+            [FromRoute] string ano,
+            [FromRoute] string mes
+        )
         {
             try
             {
@@ -41,12 +44,16 @@ namespace Challenge02.Controllers
                 var somaPorCategoria = (await _uow.Despesas.GetAll())
                     .Where(i => i.Data.ToString("MM/yyyy") == $"{mes}/{ano}")
                     .GroupBy(t => t.Categoria)
-                          .Select(t => new {
-                              Categoria = Enum.GetName(t.Key),
-                              NumeroDespesas = t.Count(),
-                              Total = t.Sum(ta => ta.Valor),
-                          }).ToList();
-
+                    .Select(
+                        t =>
+                            new
+                            {
+                                Categoria = Enum.GetName(t.Key),
+                                NumeroDespesas = t.Count(),
+                                Total = t.Sum(ta => ta.Valor),
+                            }
+                    )
+                    .ToList();
 
                 var receitasMensal = receitas.Sum();
                 var despesasMensal = despesas.Sum();
@@ -59,6 +66,5 @@ namespace Challenge02.Controllers
                 return StatusCode(500);
             }
         }
-
     }
 }

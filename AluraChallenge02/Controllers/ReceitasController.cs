@@ -48,8 +48,7 @@ namespace Challenge02.Controllers
         {
             try
             {
-                var resultado = await _uow.Receitas
-                .GetById(id);
+                var resultado = await _uow.Receitas.GetById(id);
 
                 return resultado == null ? NotFound() : Ok(resultado);
             }
@@ -57,7 +56,6 @@ namespace Challenge02.Controllers
             {
                 return StatusCode(500);
             }
-
         }
 
         /// <summary>
@@ -65,17 +63,18 @@ namespace Challenge02.Controllers
         /// </summary>
         /// <response code="200">Retorna a receitas selecionada pelo id.</response>
         /// <response code="404">Receita não encontrada.</response>
-        /// <response code="500">Erro no servidor.</response>     
-        /// 
+        /// <response code="500">Erro no servidor.</response>
+        ///
         [HttpGet]
         [Route("search")]
         public async Task<IActionResult> GetByDescription([FromQuery] string query)
         {
             try
             {
-                var resultado = (await _uow.Receitas.GetAll()).Where(i => i.Descricao.Contains(query)).ToList();
+                var resultado = (await _uow.Receitas.GetAll())
+                    .Where(i => i.Descricao.Contains(query))
+                    .ToList();
                 return resultado == null ? NotFound() : Ok(resultado);
-
             }
             catch (Exception)
             {
@@ -88,12 +87,18 @@ namespace Challenge02.Controllers
         /// </summary>
         [HttpGet]
         [Route("{ano}/{mes}")]
-        public async Task<IActionResult> GetByMonthYear([FromRoute] string ano, [FromRoute] string mes)
+        public async Task<IActionResult> GetByMonthYear(
+            [FromRoute] string ano,
+            [FromRoute] string mes
+        )
         {
             try
             {
-                var resultado = (await _uow.Receitas.GetAll()).Where(i => i.Data.ToString("MM/yyyy") == $"{mes}/{ano}");
-                if (resultado == null) return NotFound();
+                var resultado = (await _uow.Receitas.GetAll()).Where(
+                    i => i.Data.ToString("MM/yyyy") == $"{mes}/{ano}"
+                );
+                if (resultado == null)
+                    return NotFound();
                 return Ok(resultado);
             }
             catch (Exception)
@@ -108,17 +113,33 @@ namespace Challenge02.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] Receita model)
         {
-            if (!ModelState.IsValid) return BadRequest("Modelo inválido. Não é permitido campos em branco.");
+            if (!ModelState.IsValid)
+                return BadRequest("Modelo inválido. Não é permitido campos em branco.");
 
             try
             {
                 // Verifica se já existe receita
-                var resultado = (await _uow.Receitas.GetAll()).Where(i => CheckDescriptionSameMonth(i.Data, model.Data, i.Descricao, model.Descricao)).FirstOrDefault();
+                var resultado = (await _uow.Receitas.GetAll())
+                    .Where(
+                        i =>
+                            CheckDescriptionSameMonth(
+                                i.Data,
+                                model.Data,
+                                i.Descricao,
+                                model.Descricao
+                            )
+                    )
+                    .FirstOrDefault();
 
-                if (resultado != null) return BadRequest("Não é possível adicionar receitas iguais no mesmo mês.");
+                if (resultado != null)
+                    return BadRequest("Não é possível adicionar receitas iguais no mesmo mês.");
 
                 // Cria nova receita a ser adicionada
-                var modelo = new Receita(model.Descricao, Convert.ToDecimal(model.Valor), model.Data);
+                var modelo = new Receita(
+                    model.Descricao,
+                    Convert.ToDecimal(model.Valor),
+                    model.Data
+                );
 
                 //Adiciona receita e salva
                 await _uow.Receitas.Add(modelo);
@@ -135,7 +156,12 @@ namespace Challenge02.Controllers
         /// Verifica se existe a mesma receita em um mês.
         /// </summary>
         /// <returns>Boolean</returns>
-        private bool CheckDescriptionSameMonth(DateTime data1, DateTime data2, String descricao1, String descricao2)
+        private bool CheckDescriptionSameMonth(
+            DateTime data1,
+            DateTime data2,
+            String descricao1,
+            String descricao2
+        )
         {
             return data1.ToString("MM/yy") == data2.ToString("MM/yy") && descricao1 == descricao2;
         }
@@ -148,12 +174,14 @@ namespace Challenge02.Controllers
         public async Task<IActionResult> PutAsync([FromBody] Receita model, [FromRoute] int id)
         {
             //Verifica se o Modelo é válido
-            if (!ModelState.IsValid) return BadRequest("Modelo inválido");
+            if (!ModelState.IsValid)
+                return BadRequest("Modelo inválido");
 
             try
             {
                 var resultado = await _uow.Receitas.GetById(id);
-                if (resultado == null) return NotFound("Receita não existe.");
+                if (resultado == null)
+                    return NotFound("Receita não existe.");
                 resultado.Descricao = model.Descricao;
                 resultado.Valor = model.Valor;
                 resultado.Data = model.Data;
@@ -177,7 +205,8 @@ namespace Challenge02.Controllers
             try
             {
                 var resultado = await _uow.Receitas.GetById(id);
-                if (resultado == null) return NotFound("Modelo não existe");
+                if (resultado == null)
+                    return NotFound("Modelo não existe");
                 _uow.Receitas.Remove(resultado);
                 await _uow.Commit();
                 return Ok(resultado);

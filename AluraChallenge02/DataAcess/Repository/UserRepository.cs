@@ -5,8 +5,6 @@ namespace Challenge02.Repository
 {
     public class UserRepository : GenericRepository<User>, IUserRepository
     {
-        public UserRepository(AppDbContext context) : base(context)
-        {
-        }
+        public UserRepository(AppDbContext context) : base(context) { }
     }
 }

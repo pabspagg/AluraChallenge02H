@@ -35,29 +35,37 @@ namespace Challenge02.Controllers
         [AllowAnonymous]
         public ActionResult<dynamic> Authenticate([FromBody] User model)
         {
-            var user = _uow.Users.Find(x => x.Username == model.Username && x.Password == model.Password);
-            if (user == null) return Unauthorized(new { message = "Usuário ou senha inválidos" });
+            var user = _uow.Users.Find(
+                x => x.Username == model.Username && x.Password == model.Password
+            );
+            if (user == null)
+                return Unauthorized(new { message = "Usuário ou senha inválidos" });
 
             var token = GenerateToken(model);
-            return new {
-                token = token
-            };
+            return new { token = token };
         }
 
         private string GenerateToken(User user)
-
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
-                {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role)
-                }),
-
-                Expires = DateTime.UtcNow.AddHours(Convert.ToDouble(_config.GetValue<String>("JwtToken:TokenExpiry"))),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config.GetValue<String>("JwtToken:SecretKey"))), SecurityAlgorithms.HmacSha256Signature)
+                Subject = new System.Security.Claims.ClaimsIdentity(
+                    new Claim[]
+                    {
+                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Role, user.Role)
+                    }
+                ),
+                Expires = DateTime.UtcNow.AddHours(
+                    Convert.ToDouble(_config.GetValue<String>("JwtToken:TokenExpiry"))
+                ),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(
+                        Encoding.ASCII.GetBytes(_config.GetValue<String>("JwtToken:SecretKey"))
+                    ),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);

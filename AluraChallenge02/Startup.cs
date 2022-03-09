@@ -1,4 +1,3 @@
-
 using Challenge02.DataAcess.UnitOfWork;
 using Challenge02.Domain.Interfaces;
 using Challenge02.Models;
@@ -10,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
 
 namespace Challenge02
 {
@@ -29,8 +27,9 @@ namespace Challenge02
             services.AddControllers();
             services.SwaggerService(); //Extension method!
             services.AuthenticationService(Configuration); //Extension method!
-            services.AddDbContext<AppDbContext>(opt =>
-                    opt.UseNpgsql(Configuration.GetConnectionString("Default")));
+            services.AddDbContext<AppDbContext>(
+                opt => opt.UseNpgsql(Configuration.GetConnectionString("Default"))
+            );
             services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddTransient<IReceitaRepository, ReceitaRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
@@ -45,7 +44,9 @@ namespace Challenge02
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Challenge02 v1"));
+                app.UseSwaggerUI(
+                    c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Challenge02 v1")
+                );
             }
 
             app.UseHttpsRedirection();
@@ -56,9 +57,11 @@ namespace Challenge02
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(
+                endpoints => {
+                    endpoints.MapControllers();
+                }
+            );
         }
     }
 }

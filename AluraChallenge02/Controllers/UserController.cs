@@ -14,8 +14,8 @@ namespace Challenge02.Controllers
     public class UserController : Controller
     {
         private readonly IUnitOfWork _uow;
-        public UserController(IUnitOfWork uow) => _uow = uow;
 
+        public UserController(IUnitOfWork uow) => _uow = uow;
 
         /// <summary>
         ///  Exibe todos usuários.
@@ -24,7 +24,8 @@ namespace Challenge02.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
-            if (!ModelState.IsValid) return BadRequest("Modelo inválido. Não é permitido campos em branco.");
+            if (!ModelState.IsValid)
+                return BadRequest("Modelo inválido. Não é permitido campos em branco.");
 
             try
             {
@@ -37,7 +38,6 @@ namespace Challenge02.Controllers
             }
         }
 
-
         /// <summary>
         ///  Cadastro usuário.
         /// </summary>
@@ -45,13 +45,16 @@ namespace Challenge02.Controllers
         [Route("cadastro")]
         public async Task<IActionResult> CreateAsync([FromBody] User model)
         {
-            if (!ModelState.IsValid) return BadRequest("Modelo inválido. Não é permitido campos em branco.");
+            if (!ModelState.IsValid)
+                return BadRequest("Modelo inválido. Não é permitido campos em branco.");
 
             var modelo = new User(model.Username, model.Password, "user_role");
 
             try
             {
-                var usuarios = (await _uow.Users.GetAll()).Where(i => i.Username == model.Username).FirstOrDefault();
+                var usuarios = (await _uow.Users.GetAll())
+                    .Where(i => i.Username == model.Username)
+                    .FirstOrDefault();
                 if (usuarios != null)
                 {
                     await _uow.Users.Add(modelo);
