@@ -1,8 +1,8 @@
-﻿using Challenge02.DataAcess.UnitOfWork;
+﻿using AutoMapper;
+using Challenge02.DataAcess.UnitOfWork;
 using Challenge02.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,28 +10,37 @@ using System.Threading.Tasks;
 namespace Challenge02.Controllers
 {
     [ApiController]
-    [Route("api/v1/receitas")]
+    [Route("api/v1/[controller]")]
     [Authorize]
-    public class ReceitaController : Controller
+    public class despesasController : Controller
     {
+
         private readonly IUnitOfWork _uow;
 
         /// <summary>
         /// Construtor da classe ReceitaController
         /// </summary>
-        public ReceitaController(IUnitOfWork uow) => _uow = uow;
+        public despesasController(IUnitOfWork uow)=>  _uow = uow;
+        
 
         /// <summary>
-        /// Retorna todas as receitas.
+        /// Retorna todas as despesas.
         /// </summary>
-        /// <response code="200">Retorna todas as receitas cadastradas.</response>
+        /// <response code="200">Retorna todas as despesas cadastradas.</response>
         /// <returns></returns>
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
             try
             {
-                var resultado = await _uow.Receitas.GetAll();
+                var resultado = (await _uow.Despesas.GetAll()).Select(t => new {
+
+                    Id = t.Id,
+                    Descricao = t.Descricao,
+                    Valor = t.Valor,
+                    Data = t.Data,
+                    Categoria = Enum.GetName(t.Categoria),
+                }).ToList(); ;
                 return Ok(resultado);
             }
             catch (Exception)
@@ -41,7 +50,7 @@ namespace Challenge02.Controllers
         }
 
         /// <summary>
-        /// Retorna receita por id.
+        /// Retorna despesa por id.
         /// </summary>
         [HttpGet]
         [Route("{id}")]
@@ -49,9 +58,9 @@ namespace Challenge02.Controllers
         {
             try
             {
-                var resultado = await _uow.Receitas
+                var resultado = await _uow.Despesas
                 .GetById(id);
-
+                if (resultado == null) return NotFound();
                 return resultado == null ? NotFound() : Ok(resultado);
             }
             catch (Exception)
@@ -62,10 +71,10 @@ namespace Challenge02.Controllers
         }
 
         /// <summary>
-        /// Pesquisa receita por descrição.
+        /// Pesquisa despesa por descrição.
         /// </summary>
-        /// <response code="200">Retorna a receitas selecionada pelo id.</response>
-        /// <response code="404">Receita não encontrada.</response>
+        /// <response code="200">Retorna a despesa selecionada pelo id.</response>
+        /// <response code="404">Despesa não encontrada.</response>
         /// <response code="500">Erro no servidor.</response>     
         /// 
         [HttpGet]
@@ -74,7 +83,7 @@ namespace Challenge02.Controllers
         {
             try
             {
-                var resultado = (await _uow.Receitas.GetAll()).Where(i => i.Descricao.Contains(query)).ToList();
+                var resultado = (await _uow.Despesas.GetAll()).Where(i => i.Descricao.Contains(query)).ToList();
                 return resultado == null ? NotFound() : Ok(resultado);
 
             }
@@ -85,7 +94,7 @@ namespace Challenge02.Controllers
         }
 
         /// <summary>
-        /// Pesquisa receitas em um determinado mês/ano.
+        /// Pesquisa despesas em um determinado mês/ano.
         /// </summary>
         [HttpGet]
         [Route("{ano}/{mes}")]
@@ -93,7 +102,7 @@ namespace Challenge02.Controllers
         {
             try
             {
-                var resultado = (await _uow.Receitas.GetAll()).Where(i => i.Data.ToString("MM/yyyy") == $"{mes}/{ano}");
+                var resultado = (await _uow.Despesas.GetAll()).Where(i => i.Data.ToString("MM/yyyy") == $"{mes}/{ano}");
                 if (resultado == null) return NotFound();
                 return Ok(resultado);
             }
@@ -104,26 +113,26 @@ namespace Challenge02.Controllers
         }
 
         /// <summary>
-        /// Adiciona uma única receita.
+        /// Adiciona uma única despesa.
         /// </summary>
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] Receita model)
+        public async Task<IActionResult> PostAsync([FromBody] Despesa model)
         {
+            //Verifica a validade da Url e se o Modelo é válido
             if (!ModelState.IsValid) return BadRequest("Modelo inválido. Não é permitido campos em branco.");
 
             try
             {
-                // Verifica se já existe receita
-                var resultado = (await _uow.Receitas.GetAll()).Where(i => CheckDescriptionSameMonth(i.Data, model.Data, i.Descricao, model.Descricao)).FirstOrDefault();
+                // Verifica se já existe despesa
+                var resultado = (await _uow.Despesas.GetAll()).Where(i => CheckDescriptionSameMonth(i.Data, model.Data, i.Descricao, model.Descricao)).FirstOrDefault();
 
-                if (resultado != null) return BadRequest("Não é possível adicionar receitas iguais no mesmo mês.");
+                if (resultado != null) return BadRequest("Não é possível adicionar despesas iguais no mesmo mês.");
 
-                // Cria nova receita a ser adicionada
-                var modelo = new Receita(model.Descricao, Convert.ToDecimal(model.Valor), model.Data);
-
-                //Adiciona receita e salva
-                       await _uow.Receitas.Add(modelo);
-                       await _uow.Commit();
+                // Cria nova despesa a ser adicionada
+                var modelo = new Despesa(model.Descricao, Convert.ToDecimal(model.Valor), model.Data);
+                //Adiciona despesa e salva
+                await _uow.Despesas.Add(modelo);
+                await _uow.Commit();
                 return Ok(modelo);
             }
             catch (Exception)
@@ -133,7 +142,7 @@ namespace Challenge02.Controllers
         }
 
         /// <summary>
-        /// Verifica se existe a mesma receita em um mês.
+        /// Verifica se existe a mesma despesa em um mês.
         /// </summary>
         /// <returns>Boolean</returns>
         private bool CheckDescriptionSameMonth(DateTime data1, DateTime data2, String descricao1, String descricao2)
@@ -142,23 +151,23 @@ namespace Challenge02.Controllers
         }
 
         /// <summary>
-        /// Atualiza receita.
+        /// Atualiza despesa.
         /// </summary>
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> PutAsync([FromBody] Receita model, [FromRoute] int id)
+        public async Task<IActionResult> PutAsync([FromBody] Despesa model, [FromRoute] int id)
         {
             //Verifica se o Modelo é válido
             if (!ModelState.IsValid) return BadRequest("Modelo inválido");
 
             try
             {
-                var resultado = await _uow.Receitas.GetById(id);
-                if (resultado == null) return NotFound("Receita não existe.");
+                var resultado = await _uow.Despesas.GetById(id);
+                if (resultado == null) return NotFound("Despesa não existe.");
                 resultado.Descricao = model.Descricao;
                 resultado.Valor = model.Valor;
                 resultado.Data = model.Data;
-                _uow.Receitas.Update(resultado);
+                _uow.Despesas.Update(resultado);
                 await _uow.Commit();
                 return Ok();
             }
@@ -169,7 +178,7 @@ namespace Challenge02.Controllers
         }
 
         /// <summary>
-        /// Deleta receita por id.
+        /// Deleta despesa por id.
         /// </summary>
         [HttpDelete]
         [Route("{id}")]
@@ -177,9 +186,9 @@ namespace Challenge02.Controllers
         {
             try
             {
-                var resultado = await _uow.Receitas.GetById(id);
+                var resultado = await _uow.Despesas.GetById(id);
                 if (resultado == null) return NotFound("Modelo não existe");
-                _uow.Receitas.Remove(resultado);
+                _uow.Despesas.Remove(resultado);
                 await _uow.Commit();
                 return Ok(resultado);
             }

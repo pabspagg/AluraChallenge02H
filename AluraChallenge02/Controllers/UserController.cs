@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Challenge02.Controllers
 {
     [ApiController]
-    [Route("api/v1/user")]
+    [Route("api/v1/[controller]")]
     [AllowAnonymous]
     public class UserController : Controller
     {

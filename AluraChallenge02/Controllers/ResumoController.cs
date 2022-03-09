@@ -1,5 +1,4 @@
 ﻿using Challenge02.DataAcess.UnitOfWork;
-using Challenge02.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 namespace Challenge02.Controllers
 {
     [ApiController]
-    [Route("api/v1/resumo")]
+    [Route("api/v1/[controller]")]
     [Authorize]
     public class ResumoController : Controller
     {

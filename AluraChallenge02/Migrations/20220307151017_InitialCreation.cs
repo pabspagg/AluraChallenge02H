@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System;
 
 namespace Challenge02.Migrations
 {
@@ -10,8 +10,7 @@ namespace Challenge02.Migrations
         {
             migrationBuilder.CreateTable(
                 name: "Despesa",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Descricao = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -19,38 +18,33 @@ namespace Challenge02.Migrations
                     Data = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Categoria = table.Column<int>(type: "integer", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Despesa", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Receita",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Descricao = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
                     Valor = table.Column<decimal>(type: "numeric", nullable: false),
                     Data = table.Column<DateTime>(type: "timestamp without time zone", maxLength: 40, nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Receita", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Usuario",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Username = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
                     Password = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
                     Role = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Usuario", x => x.Id);
                 });
         }

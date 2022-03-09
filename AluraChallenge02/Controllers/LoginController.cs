@@ -6,14 +6,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
 namespace Challenge02.Controllers
 {
     [ApiController]
-    [Route("api/v1/login")]
+    [Route("api/v1/[controller]")]
     [AllowAnonymous]
     public class LoginController : Controller
     {
