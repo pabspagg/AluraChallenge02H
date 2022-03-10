@@ -6,5 +6,6 @@ namespace Challenge02.Repository
     public class DespesaRepository : GenericRepository<Despesa>, IDespesaRepository
     {
         public DespesaRepository(AppDbContext context) : base(context) { }
+
     }
 }

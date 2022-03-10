@@ -29,6 +29,7 @@ namespace Challenge02.Controllers
             [FromRoute] string mes
         )
         {
+
             try
             {
                 // Seleciona pelo mês/ano
@@ -46,8 +47,7 @@ namespace Challenge02.Controllers
                     .GroupBy(t => t.Categoria)
                     .Select(
                         t =>
-                            new
-                            {
+                            new {
                                 Categoria = Enum.GetName(t.Key),
                                 NumeroDespesas = t.Count(),
                                 Total = t.Sum(ta => ta.Valor),
